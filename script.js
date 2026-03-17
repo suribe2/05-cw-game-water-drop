@@ -1,9 +1,13 @@
 // Variables to control game state
+let score = 0; // Player's score
+let lives = 5; // Player's lives
 let gameRunning = false; // Keeps track of whether game is active or not
 let dropMaker; // Will store our timer that creates drops regularly
 
 // Wait for button click to start the game
 document.getElementById("start-btn").addEventListener("click", startGame);
+// Wait for button click to reset the game
+document.getElementById("reset-btn").addEventListener("click", resetGame);
 
 function startGame() {
   // Prevent multiple games from running at once
@@ -13,6 +17,24 @@ function startGame() {
 
   // Create new drops every second (1000 milliseconds)
   dropMaker = setInterval(createDrop, 1000);
+}
+
+function resetGame() {
+
+  score = 0;
+  lives = 5;
+
+  gameRunning = false;
+
+  clearInterval(dropMaker);
+
+  document.getElementById("score").textContent = score;
+  document.getElementById("lives").textContent = lives;
+
+  // remove all drops
+  const drops = document.querySelectorAll(".water-drop");
+  drops.forEach(drop => drop.remove());
+
 }
 
 function createDrop() {
@@ -42,4 +64,45 @@ function createDrop() {
   drop.addEventListener("animationend", () => {
     drop.remove(); // Clean up drops that weren't caught
   });
+
+  // Randomly decide if drop is good or bad
+const isBad = Math.random() < 0.2;
+
+if (isBad) {
+  drop.classList.add("bad-drop");
+}
+
+drop.addEventListener("click", () => {
+
+  if (drop.classList.contains("bad-drop")) {
+
+      lives--;
+
+      document.getElementById("lives").textContent = lives;
+
+      drop.style.backgroundColor = "#F5402C"; // charity red
+
+      if (lives <= 0) {
+          alert("Game Over!");
+          resetGame();
+      }
+
+  } else {
+
+      score += 10;
+
+      document.getElementById("score").textContent = score;
+
+      drop.style.backgroundColor = "#4FCB53"; // green success
+
+  }
+
+  drop.style.transform = "scale(1.4)";
+  drop.style.opacity = "0";
+
+  setTimeout(() => {
+      drop.remove();
+  }, 150);
+
+});
 }
